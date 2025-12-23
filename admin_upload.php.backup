@@ -1,0 +1,354 @@
+<?php
+// admin_upload.php - صفحة النموذج (Form Display Page)
+require 'admin_check.php'; 
+?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الإدارة - رفع الدروس</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles (Retained and Enhanced) */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f4f8; }
+        .form-container { max-width: 850px; margin: auto; padding: 30px; border-radius: 16px; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+        h2 { text-align: center; color: #1e3a8a; margin-bottom: 30px; border-bottom: 3px solid #3b82f6; padding-bottom: 15px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4b5563; }
+        input[type="text"], input[type="file"], select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; 
+            transition: border-color 0.3s, box-shadow 0.3s; background-color: #f9fafb;
+        }
+        input:focus, select:focus, textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); outline: none; }
+        
+        /* New Course Grouping */
+        #new-course-fields { display: none; border: 2px solid #a5b4fc; padding: 25px; margin-top: 20px; border-radius: 12px; background-color: #f5f7ff; }
+        #new-course-fields h4 { color: #4f46e5; margin-bottom: 15px; border-bottom: 1px solid #c7d2fe; padding-bottom: 8px; }
+
+        /* Course Loader & Select */
+        #courseId { cursor: pointer; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; vertical-align: middle; margin-right: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* File List Design (Crucial Changes) */
+        #file-list { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+        .file-entry { 
+            display: flex; align-items: flex-start; gap: 20px;
+            border: 1px solid #e5e7eb; padding: 20px; margin-bottom: 20px; border-radius: 10px; 
+            background-color: #fff; transition: box-shadow 0.3s;
+        }
+        .file-entry:hover { box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); }
+        .file-info { flex-grow: 1; }
+        
+        /* Video/Image Thumbnail/Icon */
+        .file-preview { 
+            width: 150px; min-width: 150px; height: 100px; overflow: hidden; 
+            border-radius: 8px; background-color: #e0e7ff; 
+            display: flex; justify-content: center; align-items: center;
+        }
+        .file-preview img, .file-preview video { width: 100%; height: 100%; object-fit: cover; }
+        .file-preview .fa-icon { font-size: 40px; color: #3b82f6; }
+        .file-preview p { margin: 0; font-size: 14px; color: #6b7280; }
+
+        /* Submit Button */
+        button[type="submit"] { background-color: #10b981; color: white; padding: 14px 25px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; width: 100%; transition: background-color 0.3s; margin-top: 20px; }
+        button[type="submit"]:hover { background-color: #059669; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        
+        .alert-error { color: #991b1b; background-color: #fee2e2; border-color: #fecaca; }
+        .alert-success { color: #166534; background-color: #dcfce7; border-color: #bbf7d0; padding: 10px; border-radius: 6px; }
+        
+        /* Upload Progress Indicators */
+        #upload-progress-container {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #3b82f6;
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+    <script src="site-notification.js"></script>
+</head>
+<body>
+    <div class="form-container">
+        <h2><i class="fas fa-video"></i> لوحة رفع الدروس الجديدة</h2>
+        
+        <form action="upload_handler.php" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="courseId"><i class="fas fa-book"></i> تحديد الكورس</label>
+                <div style="display: flex; align-items: center;">
+                    <select id="courseId" name="course_id" required>
+                        <option value="">-- Loading Courses... --</option>
+                        <option value="new">-- إنشاء كورس جديد --</option>
+                    </select>
+                    <div id="course-loader" class="loader"></div>
+                </div>
+            </div>
+
+            <div id="new-course-fields">
+                <h4>تفاصيل الكورس الجديد</h4>
+                <div class="form-group">
+                    <label for="newCourseTitle"><i class="fas fa-pencil-alt"></i> عنوان الكورس</label>
+                    <input type="text" id="newCourseTitle" name="new_course_title" placeholder="مثال: تطوير الويب باستخدام PHP" />
+                </div>
+                 <div class="form-group">
+                    <label for="newCourseCategory"><i class="fas fa-tags"></i> تصنيف الكورس</label>
+                    <input type="text" id="newCourseCategory" name="new_course_category" placeholder="مثال: الواجهة الخلفية (Backend)" />
+                </div>
+            <div class="form-group">
+    <label for="courseLevel">مستوى الصعوبة</label>
+    <select class="form-control" id="courseLevel" name="level">
+        <option value="أساسي">أساسي</option>
+        <option value="متوسط">متوسط</option>
+        <option value="متقدم">متقدم</option>
+         <option value="مبتدئ-متوسط">مبتدئ-متوسط</option>
+         <option value="أساسي-متوسط">أساسي-متوسط</option>
+          <option value="متوسط-متقدم">متوسط-متقدم</option>
+             
+        </select>
+</div>
+            <div class="form-group">
+                <label for="courseLogo"><i class="fas fa-image"></i> شعار الكورس (اختياري)</label>
+                <input type="file" id="courseLogo" name="course_logo" accept="image/*" />
+                <small style="color: #6b7280; margin-top: 5px; display: block;">يُفضل صورة مربعة بحجم 200x200 بكسل</small>
+            </div>
+                <div class="form-group">
+                    <label for="newCourseDescription"><i class="fas fa-align-right"></i> وصف الكورس</label>
+                    <textarea id="newCourseDescription" name="new_course_description" rows="3" placeholder="وصف موجز للمحتوى..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="newCoursePoints"><i class="fas fa-list-ul"></i> النقاط الرئيسية للكورس (افصل بينها بسطر جديد)</label>
+                    <textarea
+                        id="newCoursePoints"
+                        name="new_course_main_points"
+                        rows="4"
+                        placeholder="اكتب كل ميزة أو نقطة رئيسية للكورس في سطر جديد. هذا ما سيظهر في صفحة النظرة العامة."
+                    ></textarea>
+                </div>
+                </div>
+
+            <div class="form-group">
+                <label for="videoFiles"><i class="fas fa-upload"></i> اختيار ملفات الفيديو (يمكن اختيار متعدد)</label>
+                <input type="file" id="videoFiles" name="videos[]" accept="video/*" multiple required />
+            </div>
+
+            <div id="file-list">
+                </div>
+
+            <div class="form-group">
+                <div id="upload-progress-container">
+                    <h4><i class="fas fa-spinner fa-spin"></i> جاري رفع الملفات...</h4>
+                    <div class="progress-bar-container">
+                        <div id="upload-progress-bar" class="progress-bar">0%</div>
+                    </div>
+                    <p id="upload-status">جاري تحضير الملفات للرفع...</p>
+                </div>
+                
+                <button type="submit" id="submit-button"><i class="fas fa-save"></i> رفع الدروس والحفظ</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+      const courseIdSelect = document.getElementById("courseId");
+      const newCourseFields = document.getElementById("new-course-fields");
+      const newCourseTitleInput = document.getElementById("newCourseTitle");
+      const alertContainer = document.getElementById("alert-container");
+      const courseLoader = document.getElementById("course-loader");
+      
+      // 🚨 نحتاج أيضاً لحقل النقاط الرئيسية لضبط خاصية required 🚨
+      const newCoursePointsInput = document.getElementById("newCoursePoints");
+
+      // ------------------------------------------------------------------
+      // A. Load Existing Courses
+      // ------------------------------------------------------------------
+      async function loadCourses() {
+        courseLoader.style.display = 'inline-block';
+        try {
+          const response = await fetch("fetch_courses.php");
+          const data = await response.json();
+
+          if (!data.success) {
+            showNotification("Failed to load courses: " + data.message, "error");
+            return;
+          }
+
+          courseIdSelect.innerHTML = '<option value="">-- اختر أو أنشئ --</option><option value="new">-- إنشاء كورس جديد --</option>';
+
+          const categories = {};
+          data.courses.forEach(course => {
+            const category = course.category || "Uncategorized"; 
+            if (!categories[category]) { categories[category] = []; }
+            categories[category].push(course);
+          });
+
+          for (const category in categories) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = category;
+            categories[category].forEach(course => {
+              const option = document.createElement('option');
+              option.value = course.id;
+              option.textContent = course.title;
+              optgroup.appendChild(option);
+            });
+            courseIdSelect.appendChild(optgroup);
+          }
+          
+          courseIdSelect.value = ''; 
+
+        } catch (error) {
+          console.error("Fetch Error:", error);
+          showNotification("Error connecting to the server to load courses. Please check fetch_courses.php.", "error");
+          courseIdSelect.innerHTML = '<option value="">-- فشل التحميل --</option><option value="new">-- إنشاء كورس جديد --</option>';
+        } finally {
+            courseLoader.style.display = 'none';
+        }
+      }
+
+      window.addEventListener("load", loadCourses);
+
+      // ------------------------------------------------------------------
+      // B. Toggle New Course Fields
+      // ------------------------------------------------------------------
+      courseIdSelect.addEventListener("change", () => {
+        if (courseIdSelect.value === "new") {
+          newCourseFields.style.display = "block";
+          newCourseTitleInput.required = true;
+          // 🚨 جعل حقل النقاط الرئيسية مطلوباً عند الإنشاء 🚨
+          newCoursePointsInput.required = true; 
+        } else {
+          newCourseFields.style.display = "none";
+          newCourseTitleInput.required = false;
+          newCoursePointsInput.required = false;
+        }
+      });
+
+      // ------------------------------------------------------------------
+      // C. Populate Lesson Details (Thumbnail/Preview)
+      // ------------------------------------------------------------------
+      const videoFilesInput = document.getElementById("videoFiles");
+      const fileListContainer = document.getElementById("file-list");
+
+      videoFilesInput.addEventListener("change", () => {
+        fileListContainer.innerHTML = "";
+        const files = videoFilesInput.files;
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const title = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
+
+          const fileEntry = document.createElement("div");
+          fileEntry.className = "file-entry";
+
+          let previewHTML = '';
+          const fileType = file.type.split('/')[0];
+          
+          if (fileType === 'video') {
+             // إزالة 'controls' لإخفاء أزرار التشغيل، الإبقاء على 'muted' فقط
+            const videoURL = URL.createObjectURL(file);
+            previewHTML = `<video muted src="${videoURL}"></video>`; 
+          } else {
+             previewHTML = `<i class="fas fa-file-video fa-icon"></i><p>${file.name.substring(0, 15)}...</p>`;
+          }
+
+          fileEntry.innerHTML = `
+                <div class="file-preview">
+                    ${previewHTML}
+                </div>
+                <div class="file-info">
+                    <div class="form-group">
+                        <label>عنوان الدرس (${i + 1})</label>
+                        <input type="text" name="titles[]" value="${title}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="desc-${i}">وصف الدرس</label>
+                        <textarea name="descriptions[]" id="desc-${i}" rows="3" placeholder="أضف وصفاً موجزاً لهذا الدرس..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="code-${i}">الكود المستخدم في الدرس (اختياري)</label>
+                        <textarea name="codes[]" id="code-${i}" rows="5" placeholder="أضف الكود المستخدم في هذا الدرس..."></textarea>
+                    </div>
+            `;
+          fileListContainer.appendChild(fileEntry);
+        }
+      });
+      
+      // Handle form submission and progress indicators
+      const form = document.querySelector('form');
+      const submitButton = document.getElementById('submit-button');
+      const progressContainer = document.getElementById('upload-progress-container');
+      const progressBar = document.getElementById('upload-progress-bar');
+      const statusText = document.getElementById('upload-status');
+      
+      form.addEventListener('submit', function(e) {
+        // Check if form has files to upload
+        const videoFiles = document.getElementById('videos').files;
+        
+        if (form.checkValidity() && videoFiles.length > 0) {
+          e.preventDefault(); // Prevent default form submission
+          
+          // Show progress container and disable submit button
+          progressContainer.style.display = 'block';
+          submitButton.disabled = true;
+          submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
+          
+          // Simulate upload progress (since XMLHttpRequest isn't used directly)
+          // In a real implementation, you would use FormData and XMLHttpRequest to track actual progress
+          let progress = 0;
+          const interval = setInterval(function() {
+            progress += Math.random() * 10;
+            if (progress > 98) progress = 98; // Keep it at 98% until the server responds
+            
+            progressBar.style.width = progress.toFixed(0) + '%';
+            progressBar.textContent = progress.toFixed(0) + '%';
+            
+            if (progress < 30) {
+              statusText.textContent = 'جاري تحضير الملفات للرفع...';
+            } else if (progress < 60) {
+              statusText.textContent = 'جاري رفع الفيديوهات (' + videoFiles.length + ' ملفات)...';
+            } else if (progress < 90) {
+              statusText.textContent = 'جاري معالجة الدروس وحفظها في قاعدة البيانات...';
+            } else {
+              statusText.textContent = 'جاري إنهاء العملية...';
+            }
+            
+            if (progress >= 98) {
+              clearInterval(interval);
+            }
+          }, 500);
+          
+          // Submit the actual form
+          setTimeout(() => {
+            form.submit();
+          }, 800);
+        }
+      });
+    </script>
+</body>
+</html>

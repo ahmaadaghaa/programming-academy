@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navbar Only - Programming Academy</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #4cc9f0;
+        --success: #4ade80;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --card-bg: #ffffff;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+        --border-radius-small: 5px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--light);
+        color: var(--dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        padding-top: 80px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header & Navbar */
+      header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, var(--accent), var(--primary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: var(--transition);
+        position: relative;
+        display: block;
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 100;
+      }
+
+      .dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-menu a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+        transition: var(--transition);
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #f5f5f5;
+        color: var(--primary);
+      }
+
+      .dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      .login-btn {
+        background-color: var(--accent);
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+      }
+
+      .login-btn:hover {
+        background-color: #3ab0d9;
+      }
+
+      /* User Profile Dropdown */
+      .user-profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 10px;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 1000;
+      }
+
+      .user-profile:hover .user-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--gray);
+      }
+
+      .logout-btn {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-small);
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+
+      /* ============================================
+         MOBILE MENU STYLES
+         ============================================ */
+
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        z-index: 1001;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: white;
+        margin: 3px 0;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* Mobile Menu Overlay */
+      .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .mobile-nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        padding: 2rem;
+        overflow-y: auto;
+        transition: var(--transition);
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-nav-links.active {
+        right: 0;
+      }
+
+      .mobile-nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .mobile-nav-header h2 {
+        color: var(--primary);
+      }
+
+      .close-mobile-menu {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--dark);
+        cursor: pointer;
+      }
+
+      .mobile-nav-links ul {
+        list-style: none;
+      }
+
+      .mobile-nav-links li {
+        margin-bottom: 1rem;
+      }
+
+      .mobile-nav-links a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-nav-links a:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown {
+        position: relative;
+      }
+
+      .mobile-dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-dropdown-toggle:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding-right: 1rem;
+      }
+
+      .mobile-dropdown-menu.active {
+        max-height: 500px;
+      }
+
+      .mobile-dropdown-menu a {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--dark);
+      }
+
+      .user-profile-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+
+        border-radius: 10px;
+        margin-top: 1rem;
+      }
+
+      .user-info-mobile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: flex;
+        }
+
+        .mobile-nav-links.active {
+          right: 0;
+        }
+
+        .dropdown-content {
+          position: static;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          box-shadow: none;
+          background: rgba(67, 97, 238, 0.05);
+          margin-top: 0.5rem;
+          border-radius: 8px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 1rem;
+        }
+
+        .logo h1 {
+          font-size: 1rem;
+        }
+      }
+
+      /* Demo Content */
+      .demo-content {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .demo-content h1 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      .demo-content p {
+        font-size: 1.1rem;
+        color: var(--dark);
+        margin-bottom: 2rem;
+      }
+
+      .demo-info {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .demo-info h2 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      .demo-info ul {
+        text-align: right;
+        list-style: none;
+      }
+
+      .demo-info li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .demo-info li:last-child {
+        border-bottom: none;
+      }
+
+      .demo-info li i {
+        margin-left: 10px;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <header>
+      <nav class="navbar">
+        <div class="logo">
+          <div class="logo-img">
+            <i class="fas fa-code"></i>
+          </div>
+          <h1>أكاديمية البرمجة المتكاملة</h1>
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >تعلم الآن <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+              <a href="challenges.html">التحديات البرمجية</a>
+              <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+            </div>
+          </li>
+          <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >الكورسات <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="path.php?path=basics">مسار أساسيات البرمجة</a>
+              <a href="path.php?path=frontend">مسار Frontend Developer</a>
+              <a href="path.php?path=backend">مسار Backend Developer</a>
+            </div>
+          </li>
+          <li>
+            <a href="project.html" class="nav-link">التكليفات والمشاريع</a>
+          </li>
+          <li class="user-profile" id="userProfile" style="display: none">
+            <div class="user-avatar-small" id="userAvatarSmall">م</div>
+            <div class="user-dropdown">
+              <div class="user-info">
+                <div class="user-avatar-small" id="dropdownAvatar">م</div>
+                <div>
+                  <div class="user-name" id="dropdownUserName"></div>
+                  <div class="user-email" id="dropdownUserEmail"></div>
+                </div>
+              </div>
+              <a
+                href="profile.html"
+                class="nav-link"
+                style="
+                  display: block;
+                  text-align: right;
+                  margin-bottom: 0.5rem;
+                  color: black;
+                  font-size: large;
+                "
+                ><i
+                  class="fas fa-user-circle profile-icon"
+                  style="margin-left: 10%"
+                ></i
+                >الملف الشخصي</a
+              >
+              <button class="logout-btn" id="logoutBtn">تسجيل الخروج</button>
+            </div>
+          </li>
+          <li id="loginButton">
+            <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+          </li>
+        </ul>
+
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav-links" id="mobileNavLinks">
+      <div class="mobile-nav-header">
+        <h2>القائمة</h2>
+      </div>
+      <ul>
+        <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">تعلم الآن</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+            <a href="challenges.html">التحديات البرمجية</a>
+            <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+          </div>
+        </li>
+        <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">الكورسات</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="path.php?path=basics">مسار أساسيات البرمجة</a>
+            <a href="path.php?path=frontend">مسار Frontend Developer</a>
+            <a href="path.php?path=backend">مسار Backend Developer</a>
+          </div>
+        </li>
+        <li><a href="project.html" class="nav-link">التكليفات والمشاريع</a></li>
+        <li
+          class="user-profile-mobile"
+          id="userProfileMobile"
+          style="display: none"
+        >
+          <div class="user-info-mobile">
+            <div class="user-avatar-small" id="mobileAvatar"></div>
+            <div>
+              <div class="user-name" id="mobileUserName"></div>
+              <div class="user-email" id="mobileUserEmail"></div>
+            </div>
+          </div>
+          <a href="profile.html" class="nav-link">
+            <i class="fas fa-user-circle"></i> الملف الشخصي
+          </a>
+          <button class="logout-btn" id="mobileLogoutBtn">تسجيل الخروج</button>
+        </li>
+        <li id="loginButtonMobile">
+          <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Demo Content -->
+    <div class="container">
+      <div class="demo-content">
+        <h1>Navbar Demo</h1>
+        <p>هذه الصفحة تحتوي على navbar فقط من صفحة حل المشاكل البرمجية</p>
+
+        <div class="demo-info">
+          <h2>المميزات:</h2>
+          <ul>
+            <li><i class="fas fa-desktop"></i> تصميم متجاوب للشاشات الكبيرة</li>
+            <li>
+              <i class="fas fa-mobile-alt"></i> قائمة متحركة للأجهزة المحمولة
+            </li>
+            <li><i class="fas fa-user"></i> نظام إدارة المستخدمين</li>
+            <li><i class="fas fa-bars"></i> قوائم منسدلة تفاعلية</li>
+            <li><i class="fas fa-language"></i> دعم اللغة العربية (RTL)</li>
+            <li><i class="fas fa-palette"></i> تصميم حديث وأنيق</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize user interface on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        // Fetch user status first
+        fetch("user_status.php", { credentials: "same-origin" })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success && data.user) {
+              window.currentUser = data.user;
+            } else {
+              window.currentUser = null;
+            }
+            updateUserInterface();
+          })
+          .catch((error) => {
+            console.error("Error fetching user status:", error);
+            window.currentUser = null;
+            updateUserInterface();
+          });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+        const mobileNavLinks = document.getElementById("mobileNavLinks");
+
+        function toggleMobileMenu() {
+          const isActive = mobileMenuBtn.classList.contains("active");
+          if (isActive) {
+            closeMobileMenuFunc();
+          } else {
+            openMobileMenu();
+          }
+        }
+
+        function openMobileMenu() {
+          mobileMenuBtn.classList.add("active");
+          mobileMenuOverlay.classList.add("active");
+          mobileNavLinks.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeMobileMenuFunc() {
+          mobileMenuBtn.classList.remove("active");
+          mobileMenuOverlay.classList.remove("active");
+          mobileNavLinks.classList.remove("active");
+          document.body.style.overflow = "auto";
+        }
+
+        if (mobileMenuBtn) {
+          mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+        }
+        if (mobileMenuOverlay) {
+          mobileMenuOverlay.addEventListener("click", closeMobileMenuFunc);
+        }
+
+        // Mobile Dropdown Toggle
+        document
+          .querySelectorAll(".mobile-dropdown-toggle")
+          .forEach((toggle) => {
+            toggle.addEventListener("click", function (e) {
+              e.preventDefault();
+              const menu = this.nextElementSibling;
+              const icon = this.querySelector("i");
+              menu.classList.toggle("active");
+              if (menu.classList.contains("active")) {
+                icon.classList.remove("fa-chevron-down");
+                icon.classList.add("fa-chevron-up");
+              } else {
+                icon.classList.remove("fa-chevron-up");
+                icon.classList.add("fa-chevron-down");
+              }
+            });
+          });
+
+        // Mobile Logout
+        const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+        if (mobileLogoutBtn) {
+          mobileLogoutBtn.addEventListener("click", function () {
+            closeMobileMenuFunc(); // Close menu first
+            fetch("logout.php")
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = null;
+                  showNotification("تم تسجيل الخروج بنجاح!", "success");
+                } else {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+                }
+              })
+              .catch((error) => {
+                console.error("Logout error:", error);
+                showNotification("خطأ في تسجيل الخروج", "error");
+              });
+          });
+        }
+
+        // Dropdown hover functionality
+        const userProfile = document.getElementById("userProfile");
+        const userDropdown = document.querySelector(".user-dropdown");
+        let dropdownTimeout;
+
+        function showDropdown() {
+          clearTimeout(dropdownTimeout);
+          if (userDropdown) {
+            userDropdown.style.opacity = "1";
+            userDropdown.style.visibility = "visible";
+            userDropdown.style.transform = "translateY(0)";
+          }
+        }
+
+        function hideDropdown() {
+          dropdownTimeout = setTimeout(() => {
+            if (userDropdown) {
+              userDropdown.style.opacity = "0";
+              userDropdown.style.visibility = "hidden";
+              userDropdown.style.transform = "translateY(10px)";
+            }
+          }, 150); // Small delay to allow moving between elements
+        }
+
+        if (userProfile) {
+          userProfile.addEventListener("mouseenter", showDropdown);
+          userProfile.addEventListener("mouseleave", hideDropdown);
+        }
+
+        if (userDropdown) {
+          userDropdown.addEventListener("mouseenter", showDropdown);
+          userDropdown.addEventListener("mouseleave", hideDropdown);
+        }
+
+        // Logout functionality
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", function () {
+            fetch("logout.php")
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = null;
+                  showNotification("تم تسجيل الخروج بنجاح!", "success");
+                } else {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+                }
+              })
+              .catch((error) => {
+                console.error("Logout error:", error);
+                showNotification("خطأ في تسجيل الخروج", "error");
+              });
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
